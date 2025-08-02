@@ -144,88 +144,72 @@
         </div>
     </footer>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            const publishedCsvUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRk48YKRLqJZ004odBj4VYY6R541v1aE3Ai_QQFvMh68sNPDMUt6_JW5-ewsU_D2rydy3ghkSIcbgkg/pub?gid=0&single=true&output=csv';
-            const tableBody = document.getElementById('partner-data');
+   <script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const publishedCsvUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRk48YKRLqJZ004odBj4VYY6R541v1aE3Ai_QQFvMh68sNPDMUt6_JW5-ewsU_D2rydy3ghkSIcbgkg/pub?gid=0&single=true&output=csv';
+    const tableBody = document.getElementById('partner-data');
 
-            fetch(publishedCsvUrl)
-                .then(response => {
-                    if (!response.ok) throw new Error('Gagal mengambil data dari jaringan.');
-                    return response.text();
-                })
-                .then(csvText => {
-                    tableBody.innerHTML = '';
+    fetch(publishedCsvUrl)
+      .then(response => {
+        if (!response.ok) throw new Error('Gagal mengambil data dari jaringan.');
+        return response.text();
+      })
+      .then(csvText => {
+        tableBody.innerHTML = '';
 
-                    Papa.parse(csvText, {
-                        header: false,
-                        skipEmptyLines: true,
-                        complete: function (results) {
-                            const rows = results.data.slice(5); // Lewati header di awal
+        Papa.parse(csvText, {
+          header: false,
+          skipEmptyLines: true,
+          complete: function (results) {
+            const rows = results.data.slice(5); // Lewati header
+            let dataDitemukan = false;
 
-                            let dataDitemukan = false;
+            rows.forEach(columns => {
+              const no = columns[1]?.trim();
+              const nama = columns[2]?.trim();
+              const kategori = columns[3]?.trim() || '-';
+              const tema = columns[4]?.trim() || '-';
+              const deadline = columns[5]?.trim() || '-';
+              const linkValue = columns[6]?.trim();
+              const catatan = columns[7]?.trim() || '-';
 
-                            // Simpan nilai sebelumnya
-                            let lastNo = '';
-                            let lastNama = '';
-                            let lastDeadline = '';
-                            let lastLink = '';
-                            let lastCatatan = '';
-                            
+              // Hanya tampilkan jika 'No' dan 'Nama' terisi
+              if (!no || !nama) return;
 
-                            rows.forEach(columns => {
-                                if (columns.length >= 8 && columns.some(col => col.trim() !== '')) {
-                                    const newRow = tableBody.insertRow();
+              const newRow = tableBody.insertRow();
+              newRow.insertCell().textContent = no;
+              newRow.insertCell().textContent = nama;
+              newRow.insertCell().textContent = kategori;
+              newRow.insertCell().textContent = tema;
+              newRow.insertCell().textContent = deadline;
 
-                                    const no = columns[1]?.trim() || lastNo;
-                                    const nama = columns[2]?.trim() || lastNama;
-                                    const kategori = columns[3]?.trim() || '-';
-                                    const tema = columns[4]?.trim() || '-';
-                                    const deadline = columns[5]?.trim() || lastDeadline;
-                                    const linkValue = columns[6]?.trim() || lastLink;
-                                    const catatan = columns[7]?.trim() || lastCatatan;
+              const linkCell = newRow.insertCell();
+              if (linkValue) {
+                const link = document.createElement('a');
+                link.href = linkValue;
+                link.target = "_blank";
+                link.textContent = "Klik di sini";
+                linkCell.appendChild(link);
+              } else {
+                linkCell.textContent = '-';
+              }
 
+              newRow.insertCell().textContent = catatan;
 
-                                    // Update nilai sebelumnya jika ada
-                                    if (columns[1]?.trim()) lastNo = columns[1].trim();
-                                    if (columns[2]?.trim()) lastNama = columns[2].trim();
-                                    if (columns[5]?.trim()) lastDeadline = columns[5].trim();
-                                    if (columns[6]?.trim()) lastLink = columns[6].trim();
-                                    if (columns[7]?.trim()) lastCatatan = columns[7].trim();
+              dataDitemukan = true;
+            });
 
-
-                                    newRow.insertCell().textContent = no;
-                                    newRow.insertCell().textContent = nama;
-                                    newRow.insertCell().textContent = kategori;
-                                    newRow.insertCell().textContent = tema;
-                                    newRow.insertCell().textContent = deadline;
-
-                                    const linkCell = newRow.insertCell();
-                                    const link = document.createElement('a');
-                                    link.href = linkValue || '#';
-                                    link.target = "_blank";
-                                    link.textContent = linkValue ? "Klik di sini" : "-";
-                                    linkCell.appendChild(link);
-
-                                    newRow.insertCell().textContent = catatan;
-                                    
-
-                                    dataDitemukan = true;
-                                }
-                            });
-
-                            if (!dataDitemukan) {
-                                tableBody.innerHTML = '<tr><td colspan="8" style="text-align:center;">Saat ini belum ada informasi lomba.</td></tr>';
-                            }
-                        }
-                    });
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    tableBody.innerHTML = '<tr><td colspan="8" style="text-align:center;">Gagal memuat data.</td></tr>';
-                });
+            if (!dataDitemukan) {
+              tableBody.innerHTML = '<tr><td colspan="7" style="text-align:center;">Saat ini belum ada informasi lomba.</td></tr>';
+            }
+          }
         });
-    </script>
-
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        tableBody.innerHTML = '<tr><td colspan="7" style="text-align:center;">Gagal memuat data.</td></tr>';
+      });
+  });
+</script>
 </body>
 </html>
