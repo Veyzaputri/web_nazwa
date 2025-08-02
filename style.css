@@ -103,48 +103,41 @@ main, .content-wrapper {
   background-color: #0d3b6f;
 }
 
-/* == BAGIAN TABEL INFORMASI LOMBA == */
+/* == ATURAN UNTUK TABEL AGAR SCROLL DI DALAM KOTAK == */
 .table-container {
-    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-    border-radius: 8px;
-    overflow: hidden;
-    margin-top: 20px;
+  margin-top: 15px;
+  /* overflow-x: auto; */
+  border-radius: 5px;
+  min-width: 700px; /* Agar tidak terlalu sempit */
 }
 
-table {
+.table-container table {
   width: 100%;
   border-collapse: collapse;
 }
 
-table thead tr {
-    background-color: #1d518e;
-    color: #ffffff;
+.table-container th,
+.table-container td {
+  padding: 12px 15px;
+  border-bottom: 1px solid #b7d2f7;
+  white-space: nowrap;
+  text-align: left;
 }
 
-table th, table td {
-    padding: 15px;
-    text-align: left;
+.table-container thead {
+  background-color: #1d518e;
+  color: white;
 }
 
-table tbody tr {
-    background-color: #d6e6f7;
-    border-bottom: 2px solid #eaf5ff;
+.table-container tbody tr:last-child td {
+  border-bottom: none;
 }
 
-table tbody tr:last-child {
-    border-bottom: none;
-}
 
-table tbody td a {
-    color: #003366;
-    font-weight: 600;
-    text-decoration: underline;
-}
 
-table tbody td a:hover {
-    text-decoration: none;
+.table-container thead th:first-child {
+  background-color: #1d518e;
 }
-
 
 /* == BAGIAN PENCARIAN PARTNER == */
 .page-title {
@@ -168,6 +161,11 @@ table tbody td a:hover {
   background-color: #d6e6f7;
   padding: 25px;
   border-radius: 5px;
+}
+
+.partner-box.bordered-box {
+  overflow-x: auto; /* Scroll horizontal bila perlu */
+  max-width: 100%;
 }
 
 .form-box { /* Class tambahan untuk kotak form agar tombol di tengah */
