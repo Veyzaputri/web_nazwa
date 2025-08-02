@@ -9,6 +9,94 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Poppins:wght@400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
+    <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+
+    <!-- <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #eaf5ff;
+            color: #003366;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        h2 {
+            font-family: 'Playfair Display', serif;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .back-button {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: #003366;
+            text-decoration: none;
+        }
+
+        .material-symbols-outlined {
+            vertical-align: middle;
+            font-size: 24px;
+        }
+
+        .table-container {
+            overflow-x: auto;
+            background-color: #fff;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 800px;
+        }
+
+        th, td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #b7d2f7;
+            text-align: left;
+        }
+
+        thead {
+            background-color: #1d518e;
+            color: white;
+        }
+
+        tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        footer.kontak {
+            background-color: #1d518e;
+            color: white;
+            padding: 30px 20px;
+            text-align: center;
+            margin-top: 50px;
+        }
+
+        .kontak-content {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 30px;
+            flex-wrap: wrap;
+        }
+
+        .kontak-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+            color: white;
+        }
+    </style> -->
 </head>
 <body>
 
@@ -23,18 +111,19 @@
             <table>
                 <thead>
                     <tr>
-                        <th>Nama & Unsur</th>
-                        <th>Email</th>
-                        <th>Kontak (Line/WA)</th>
-                        <th>Jenis Lomba</th>
-                        <th>Kelebihan</th>
-                        <th>Kelemahan</th>
-                        <th>Kriteria Partner</th>
+                        <th>No</th>
+                        <th>Nama Lomba</th>
+                        <th>Kategori</th>
+                        <th>Tema</th>
+                        <th>Deadline</th>
+                        <th>Link</th>
+                        <th>Catatan</th>
+                        
                     </tr>
                 </thead>
                 <tbody id="partner-data">
                     <tr>
-                        <td colspan="7" style="text-align: center;">Memuat data...</td>
+                        <td colspan="8" style="text-align: center;">Memuat data...</td>
                     </tr>
                 </tbody>
             </table>
@@ -55,50 +144,88 @@
         </div>
     </footer>
 
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const publishedCsvUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRNRMqXAUU77_zDGzQSKyvsH5T7EOiTeUTAJ5JHt5KxedfTPi-XeS_rH9YiDTtvBTHNir7WFsaUN_0O/pub?gid=1265514671&single=true&output=csv';
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const publishedCsvUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRk48YKRLqJZ004odBj4VYY6R541v1aE3Ai_QQFvMh68sNPDMUt6_JW5-ewsU_D2rydy3ghkSIcbgkg/pub?gid=0&single=true&output=csv';
+            const tableBody = document.getElementById('partner-data');
 
-        const tableBody = document.getElementById('partner-data');
+            fetch(publishedCsvUrl)
+                .then(response => {
+                    if (!response.ok) throw new Error('Gagal mengambil data dari jaringan.');
+                    return response.text();
+                })
+                .then(csvText => {
+                    tableBody.innerHTML = '';
 
-        fetch(publishedCsvUrl)
-            .then(response => {
-                if (!response.ok) throw new Error('Gagal mengambil data dari jaringan.');
-                return response.text();
-            })
-            .then(data => {
-                tableBody.innerHTML = ''; 
-                const rows = data.split('\n').slice(1);
+                    Papa.parse(csvText, {
+                        header: false,
+                        skipEmptyLines: true,
+                        complete: function (results) {
+                            const rows = results.data.slice(5); // Lewati header di awal
 
-                let dataDitemukan = false;
-                rows.forEach(rowText => {
-                    if (!rowText || rowText.trim() === '') return;
-                    const columns = rowText.split(',');
-                    if (columns.length >= 8) { 
-                        dataDitemukan = true;
-                        const newRow = tableBody.insertRow();
-                        
-                        // Menampilkan data dari semua kolom yang relevan
-                        newRow.insertCell().textContent = columns[2].trim(); // Kolom C: Nama & Unsur
-                        newRow.insertCell().textContent = columns[1].trim(); // [DITAMBAH] Kolom B: Email
-                        newRow.insertCell().textContent = columns[3].trim(); // Kolom D: Kontak
-                        newRow.insertCell().textContent = columns[4].trim(); // Kolom E: Jenis Lomba
-                        newRow.insertCell().textContent = columns[5].trim(); // Kolom F: Kelebihan
-                        newRow.insertCell().textContent = columns[6].trim(); // Kolom G: Kelemahan
-                        newRow.insertCell().textContent = columns[7].trim(); // Kolom H: Kriteria Partner
-                    }
+                            let dataDitemukan = false;
+
+                            // Simpan nilai sebelumnya
+                            let lastNo = '';
+                            let lastNama = '';
+                            let lastDeadline = '';
+                            let lastLink = '';
+                            let lastCatatan = '';
+                            
+
+                            rows.forEach(columns => {
+                                if (columns.length >= 8 && columns.some(col => col.trim() !== '')) {
+                                    const newRow = tableBody.insertRow();
+
+                                    const no = columns[1]?.trim() || lastNo;
+                                    const nama = columns[2]?.trim() || lastNama;
+                                    const kategori = columns[3]?.trim() || '-';
+                                    const tema = columns[4]?.trim() || '-';
+                                    const deadline = columns[5]?.trim() || lastDeadline;
+                                    const linkValue = columns[6]?.trim() || lastLink;
+                                    const catatan = columns[7]?.trim() || lastCatatan;
+
+
+                                    // Update nilai sebelumnya jika ada
+                                    if (columns[1]?.trim()) lastNo = columns[1].trim();
+                                    if (columns[2]?.trim()) lastNama = columns[2].trim();
+                                    if (columns[5]?.trim()) lastDeadline = columns[5].trim();
+                                    if (columns[6]?.trim()) lastLink = columns[6].trim();
+                                    if (columns[7]?.trim()) lastCatatan = columns[7].trim();
+
+
+                                    newRow.insertCell().textContent = no;
+                                    newRow.insertCell().textContent = nama;
+                                    newRow.insertCell().textContent = kategori;
+                                    newRow.insertCell().textContent = tema;
+                                    newRow.insertCell().textContent = deadline;
+
+                                    const linkCell = newRow.insertCell();
+                                    const link = document.createElement('a');
+                                    link.href = linkValue || '#';
+                                    link.target = "_blank";
+                                    link.textContent = linkValue ? "Klik di sini" : "-";
+                                    linkCell.appendChild(link);
+
+                                    newRow.insertCell().textContent = catatan;
+                                    
+
+                                    dataDitemukan = true;
+                                }
+                            });
+
+                            if (!dataDitemukan) {
+                                tableBody.innerHTML = '<tr><td colspan="8" style="text-align:center;">Saat ini belum ada informasi lomba.</td></tr>';
+                            }
+                        }
+                    });
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    tableBody.innerHTML = '<tr><td colspan="8" style="text-align:center;">Gagal memuat data.</td></tr>';
                 });
-
-                if (!dataDitemukan) {
-                     tableBody.innerHTML = '<tr><td colspan="7" style="text-align:center;">Saat ini belum ada yang mencari partner.</td></tr>';
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                tableBody.innerHTML = '<tr><td colspan="7" style="text-align:center;">Gagal memuat data. Kesalahan terjadi saat mengambil data.</td></tr>';
-            });
-    });
-</script>
+        });
+    </script>
 
 </body>
 </html>
