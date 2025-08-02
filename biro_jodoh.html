@@ -1,59 +1,104 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Temukan Partner Lomba</title>
-  <link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daftar Pencari Partner</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
 </head>
 <body>
-  
-  <div class="content-wrapper">
-    <a href="javascript:history.back()" class="back-button">
+
+    <div class="container">
+        <a href="javascript:history.back()" class="back-button">
             <span class="material-symbols-outlined">arrow_back</span>
         </a>
-    <h2 class="page-title">Temukan Partner Lomba</h2>
-    
-
-    <div class="partner-grid">
-      
-      <div class="partner-box">
-        <h3>Form Pencarian Partner</h3>
-        <a href="https://forms.gle/fc9nJRsFcYcVmYVeA" target="_blank" class="form-button">Isi Form di Sini</a>
-      </div>
-      
-      <div class="partner-box bordered-box">
-        <h3>Daftar Pencarian Partner</h3>
-        <p>Lihat daftar anggota yang sedang mencari tim:</p>
         
-
-        <div class="instruction-box">
-          <strong>Cara menggunakan:</strong>
-          <ul>
-            <li>1. Isi form di atas jika ingin mencari partner</li>
-            <li>2. Data akan otomatis muncul di Google Sheet</li>
-            <li>3. Hubungi calon partner via kontak yang tersedia</li>
-            <li>4. Update data jika sudah menemukan tim</li>
-          </ul>
+        <h2>Daftar Pencari Partner</h2>
+        
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Nama & Unsur</th>
+                        <th>Email</th>
+                        <th>Kontak (Line/WA)</th>
+                        <th>Jenis Lomba</th>
+                        <th>Kelebihan</th>
+                        <th>Kelemahan</th>
+                        <th>Kriteria Partner</th>
+                    </tr>
+                </thead>
+                <tbody id="partner-data">
+                    <tr>
+                        <td colspan="7" style="text-align: center;">Memuat data...</td>
+                    </tr>
+                </tbody>
+            </table>
         </div>
-      </div>
-
     </div>
-  </div>
 
-   <footer class="kontak">
-    <h3>Kontak</h3>
-    <div class="kontak-content">
-      <a href="#" class="kontak-item">
-        <span class="material-symbols-outlined">alternate_email</span>
-        <span>@nazwa.web</span>
-      </a>
-      <a href="#" class="kontak-item">
-        <span class="material-symbols-outlined">call</span>
-        <span>+62895xxxxxx</span>
-      </a>
-    </div>
-  </footer>
+    <footer class="kontak">
+        <h3>Kontak</h3>
+        <div class="kontak-content">
+            <a href="#" class="kontak-item">
+                <span class="material-symbols-outlined">alternate_email</span>
+                <span>@nazwa.web</span>
+            </a>
+            <a href="#" class="kontak-item">
+                <span class="material-symbols-outlined">call</span>
+                <span>+62895xxxxxx</span>
+            </a>
+        </div>
+    </footer>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const publishedCsvUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRNRMqXAUU77_zDGzQSKyvsH5T7EOiTeUTAJ5JHt5KxedfTPi-XeS_rH9YiDTtvBTHNir7WFsaUN_0O/pub?gid=1265514671&single=true&output=csv';
+
+        const tableBody = document.getElementById('partner-data');
+
+        fetch(publishedCsvUrl)
+            .then(response => {
+                if (!response.ok) throw new Error('Gagal mengambil data dari jaringan.');
+                return response.text();
+            })
+            .then(data => {
+                tableBody.innerHTML = ''; 
+                const rows = data.split('\n').slice(1);
+
+                let dataDitemukan = false;
+                rows.forEach(rowText => {
+                    if (!rowText || rowText.trim() === '') return;
+                    const columns = rowText.split(',');
+                    if (columns.length >= 8) { 
+                        dataDitemukan = true;
+                        const newRow = tableBody.insertRow();
+                        
+                        // Menampilkan data dari semua kolom yang relevan
+                        newRow.insertCell().textContent = columns[2].trim(); // Kolom C: Nama & Unsur
+                        newRow.insertCell().textContent = columns[1].trim(); // [DITAMBAH] Kolom B: Email
+                        newRow.insertCell().textContent = columns[3].trim(); // Kolom D: Kontak
+                        newRow.insertCell().textContent = columns[4].trim(); // Kolom E: Jenis Lomba
+                        newRow.insertCell().textContent = columns[5].trim(); // Kolom F: Kelebihan
+                        newRow.insertCell().textContent = columns[6].trim(); // Kolom G: Kelemahan
+                        newRow.insertCell().textContent = columns[7].trim(); // Kolom H: Kriteria Partner
+                    }
+                });
+
+                if (!dataDitemukan) {
+                     tableBody.innerHTML = '<tr><td colspan="7" style="text-align:center;">Saat ini belum ada yang mencari partner.</td></tr>';
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                tableBody.innerHTML = '<tr><td colspan="7" style="text-align:center;">Gagal memuat data. Kesalahan terjadi saat mengambil data.</td></tr>';
+            });
+    });
+</script>
 
 </body>
 </html>
